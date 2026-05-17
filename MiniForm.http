@@ -1,0 +1,6 @@
+@MiniForm_HostAddress = http://localhost:5069
+
+GET {{MiniForm_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
