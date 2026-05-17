@@ -1,0 +1,55 @@
+# Build
+bin/
+obj/
+
+# Rider
+.idea/
+
+# Visual Studio
+.vs/
+
+# User files
+*.user
+*.suo
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+
+# ASP.NET
+appsettings.Development.json
+
+# NuGet
+*.nupkg
+
+# Local tools cache
+.dotnet/
+
+# Database
+*.db
+
+# JetBrains
+_ReSharper*/
+*.DotSettings.user
+
+# VS Code
+.vscode/
+
+# Publish
+publish/
+
+# Temporary
+tmp/
+temp/
+
+# node
+node_modules/
+
+
+appsettings.Development.json
