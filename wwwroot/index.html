@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini Form!</title>
+<style>
+  .tabs {
+    display:flex;
+    gap:8px;
+    margin:12px 0;
+    }
+  .tabs label {
+    padding:6px 10px;
+    border:1px solid #ccc;
+    cursor:pointer;
+    user-select:none;
+}
+  input[type="radio"] { display:none; }
+
+  section { display:none; padding:12px; border:1px solid #ccc; }
+  #tab1:checked ~ .tabs label[for="tab1"],
+  #tab2:checked ~ .tabs label[for="tab2"],
+  #tab3:checked ~ .tabs label[for="tab3"] {
+    background:#eee; border-bottom:1px solid white;
+  }
+  #tab1:checked ~ #content #page1,
+  #tab2:checked ~ #content #page2,
+  #tab3:checked ~ #content #page3 { display:block; }
+</style>
+</head>
+<body>
+  <input id="tab1" type="radio" name="tabs" checked>
+  <input id="tab2" type="radio" name="tabs">
+  <input id="tab3" type="radio" name="tabs">
+
+  <div class="tabs" role="tablist" aria-label="Навигация">
+    <label for="tab1" role="tab">Главная</label>
+    <label for="tab2" role="tab">Форма</label>
+    <label for="tab3" role="tab">ЛК</label>
+  </div>
+
+  <div id="content">
+    <section id="page1" aria-labelledby="tab1">
+      <h2>Главная страница</h2>
+      <p>Короткий текст на главной.</p>
+    </section>
+
+    <section id="page2" aria-labelledby="tab2">
+      <h2>Страница формы</h2>
+      <form>
+        <div>
+          <label>Введите текст:<br>
+            <input type="text" name="q1"></label>
+        </div>
+        <fieldset>
+          <legend>Выберите что-то одно:</legend>
+          <label><input type="radio" name="q2" value="option1" required> Вариант 1</label><br>
+          <label><input type="radio" name="q2" value="option2"> Вариант 2</label><br>
+          <label><input type="radio" name="q2" value="option3"> Вариант 3</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Выберите несколько:</legend>
+          <label><input type="checkbox" name="q3[]" value="optionA"> Опция A</label><br>
+          <label><input type="checkbox" name="q3[]" value="optionB"> Опция B</label><br>
+          <label><input type="checkbox" name="q3[]" value="optionC"> Опция C</label>
+        </fieldset>
+        <div>
+          <button type="submit">Отправить</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="page3" aria-labelledby="tab3">
+      <h2>Личный кабинет (ЛК)</h2>
+      <p>Информация пользователя</p>
+      <ul>
+        <li>Имя: Такой то такой то</li>
+        <li>Эл. почта: ivan@example.com</li>
+        <li><button>Выйти</button></li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
