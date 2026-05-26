@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
 using MiniForm.Data;
 using MiniForm.Options;
@@ -23,6 +24,21 @@ builder.Services.AddScoped<MiniForm.Application.Interfaces.IFormRepository, Mini
 builder.Services.AddScoped<MiniForm.Application.Interfaces.IUnitOfWork, MiniForm.Infrastructure.UnitOfWork.EfUnitOfWork>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Paste the raw JWT here. Swagger adds the Bearer prefix automatically."
+    });
+
+    options.OperationFilter<MiniForm.Infrastructure.Swagger.AuthorizeOperationFilter>();
+});
 
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
     ?? throw new InvalidOperationException("JWT configuration is missing.");

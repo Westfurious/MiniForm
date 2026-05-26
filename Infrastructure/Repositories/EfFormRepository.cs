@@ -16,7 +16,16 @@ public class EfFormRepository : IFormRepository
 
     public async Task<List<Form>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Forms.ToListAsync(cancellationToken);
+        return await _context.Forms
+            .Include(form => form.Questions)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Form?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Forms
+            .Include(form => form.Questions)
+            .SingleOrDefaultAsync(form => form.Id == id, cancellationToken);
     }
 
     public async Task<Form> AddAsync(Form form, CancellationToken cancellationToken = default)

@@ -6,5 +6,7 @@ public interface IFormRepository
 {
     Task<List<Form>> GetAllAsync(CancellationToken cancellationToken = default);
 
+    Task<Form?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
     Task<Form> AddAsync(Form form, CancellationToken cancellationToken = default);
 }

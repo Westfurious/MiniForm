@@ -28,5 +28,13 @@ public class AppDbContext : DbContext
             entity.HasIndex(user => user.Email)
                 .IsUnique();
         });
+
+        modelBuilder.Entity<Form>(entity =>
+        {
+            entity.HasOne(form => form.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(form => form.CreatedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 }
