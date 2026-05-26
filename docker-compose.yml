@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: miniform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d miniform"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=miniform;Username=postgres;Password=postgres
+      Jwt__Issuer: MiniForm
+      Jwt__Audience: MiniForm
+      Jwt__Key: DEV_ONLY_SUPER_SECRET_KEY_CHANGE_ME_123456
+      Jwt__ExpiresMinutes: 120
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
