@@ -9,4 +9,6 @@ public interface IFormService
     Task<FormResponse?> GetFormByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<FormResponse> CreateFormAsync(CreateFormRequest request, Guid createdByUserId, CancellationToken cancellationToken = default);
+
+    Task SubmitFormAsync(Guid formId, SubmitFormRequest request, CancellationToken cancellationToken = default);
 }

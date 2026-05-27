@@ -16,6 +16,10 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
 
+    public DbSet<Submission> Submissions => Set<Submission>();
+
+    public DbSet<Answer> Answers => Set<Answer>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -35,6 +39,27 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(form => form.CreatedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Submission>(entity =>
+        {
+            entity.HasOne(s => s.Form)
+                .WithMany()
+                .HasForeignKey(s => s.FormId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Answer>(entity =>
+        {
+            entity.HasOne(a => a.Submission)
+                .WithMany(s => s.Answers)
+                .HasForeignKey(a => a.SubmissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(a => a.Question)
+                .WithMany()
+                .HasForeignKey(a => a.QuestionId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

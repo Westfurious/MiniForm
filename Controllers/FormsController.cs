@@ -59,4 +59,18 @@ public class FormsController : ControllerBase
         var created = await _formService.CreateFormAsync(request, userId, cancellationToken);
         return Ok(created);
     }
+
+    [HttpPost("{id:guid}/responses")]
+    public async Task<ActionResult> SubmitForm(Guid id, [FromBody] MiniForm.Dtos.Forms.SubmitFormRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _formService.SubmitFormAsync(id, request, cancellationToken);
+            return Ok(new { message = "Submission saved." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

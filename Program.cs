@@ -21,6 +21,7 @@ builder.Services.AddScoped<MiniForm.Application.Interfaces.IUserService, MiniFor
 builder.Services.AddScoped<MiniForm.Application.Interfaces.IFormService, MiniForm.Infrastructure.Services.FormService>();
 builder.Services.AddScoped<MiniForm.Application.Interfaces.IUserRepository, MiniForm.Infrastructure.Repositories.EfUserRepository>();
 builder.Services.AddScoped<MiniForm.Application.Interfaces.IFormRepository, MiniForm.Infrastructure.Repositories.EfFormRepository>();
+builder.Services.AddScoped<MiniForm.Application.Interfaces.ISubmissionRepository, MiniForm.Infrastructure.Repositories.EfSubmissionRepository>();
 builder.Services.AddScoped<MiniForm.Application.Interfaces.IUnitOfWork, MiniForm.Infrastructure.UnitOfWork.EfUnitOfWork>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
