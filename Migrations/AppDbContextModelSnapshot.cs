@@ -17,7 +17,7 @@ namespace MiniForm.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -34,12 +34,17 @@ namespace MiniForm.Migrations
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("SelectedOptionId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("SubmissionId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("SelectedOptionId");
 
                     b.HasIndex("SubmissionId");
 
@@ -64,6 +69,9 @@ namespace MiniForm.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
@@ -95,11 +103,37 @@ namespace MiniForm.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FormId");
 
                     b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("MiniForm.Models.QuestionOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("QuestionOptions");
                 });
 
             modelBuilder.Entity("MiniForm.Models.Submission", b =>
@@ -158,6 +192,11 @@ namespace MiniForm.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MiniForm.Models.QuestionOption", "SelectedOption")
+                        .WithMany()
+                        .HasForeignKey("SelectedOptionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("MiniForm.Models.Submission", "Submission")
                         .WithMany("Answers")
                         .HasForeignKey("SubmissionId")
@@ -165,6 +204,8 @@ namespace MiniForm.Migrations
                         .IsRequired();
 
                     b.Navigation("Question");
+
+                    b.Navigation("SelectedOption");
 
                     b.Navigation("Submission");
                 });
@@ -190,6 +231,17 @@ namespace MiniForm.Migrations
                     b.Navigation("Form");
                 });
 
+            modelBuilder.Entity("MiniForm.Models.QuestionOption", b =>
+                {
+                    b.HasOne("MiniForm.Models.Question", "Question")
+                        .WithMany("Options")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("MiniForm.Models.Submission", b =>
                 {
                     b.HasOne("MiniForm.Models.Form", "Form")
@@ -204,6 +256,11 @@ namespace MiniForm.Migrations
             modelBuilder.Entity("MiniForm.Models.Form", b =>
                 {
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("MiniForm.Models.Question", b =>
+                {
+                    b.Navigation("Options");
                 });
 
             modelBuilder.Entity("MiniForm.Models.Submission", b =>
