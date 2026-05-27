@@ -4,7 +4,7 @@ namespace MiniForm.Application.Interfaces;
 
 public interface IFormService
 {
-    Task<List<FormResponse>> GetFormsAsync(CancellationToken cancellationToken = default);
+    Task<List<FormResponse>> GetFormsForUserAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default);
 
     Task<FormResponse?> GetFormByIdAsync(Guid id, CancellationToken cancellationToken = default);
 

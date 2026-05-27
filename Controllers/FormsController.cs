@@ -16,10 +16,22 @@ public class FormsController : ControllerBase
         _formService = formService;
     }
 
+    [Authorize]
     [HttpGet]
-    public async Task<ActionResult<List<FormResponse>>> GetForms()
+    public async Task<ActionResult<List<FormResponse>>> GetForms([FromQuery] int page = 1, CancellationToken cancellationToken = default)
     {
-        return await _formService.GetFormsAsync();
+        const int pageSize = 10;
+
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized(new { message = "Invalid user token." });
+        }
+
+        if (page < 1) page = 1;
+
+        var forms = await _formService.GetFormsForUserAsync(userId, page, pageSize, cancellationToken);
+        return Ok(forms);
     }
 
     [HttpGet("{id:guid}")]

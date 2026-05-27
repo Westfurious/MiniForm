@@ -15,9 +15,9 @@ public class FormService : IFormService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<List<FormResponse>> GetFormsAsync(CancellationToken cancellationToken = default)
+    public async Task<List<FormResponse>> GetFormsForUserAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        var forms = await _formRepository.GetAllAsync(cancellationToken);
+        var forms = await _formRepository.GetByUserAsync(userId, page, pageSize, cancellationToken);
         return forms.Select(MapToResponse).ToList();
     }
 
@@ -50,9 +50,19 @@ public class FormService : IFormService
             }).ToList()
         };
 
-        var created = await _formRepository.AddAsync(form, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return MapToResponse(created);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var created = await _formRepository.AddAsync(form, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+            return MapToResponse(created);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
     }
 
     private static FormResponse MapToResponse(Form form)

@@ -14,10 +14,16 @@ public class EfFormRepository : IFormRepository
         _context = context;
     }
 
-    public async Task<List<Form>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Form>> GetByUserAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default)
     {
+        if (page < 1) page = 1;
+        var skip = (page - 1) * pageSize;
         return await _context.Forms
-            .Include(form => form.Questions)
+            .Where(f => f.CreatedByUserId == userId)
+            .Include(f => f.Questions)
+            .OrderByDescending(f => f.CreatedAt)
+            .Skip(skip)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
     }
 

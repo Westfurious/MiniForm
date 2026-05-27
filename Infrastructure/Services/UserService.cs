@@ -34,11 +34,19 @@ public class UserService : IUserService
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 
-
-        await _userRepository.AddAsync(user, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return user;
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await _userRepository.AddAsync(user, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+            return user;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
     }
 
     public async Task<User?> ValidateCredentialsAsync(LoginRequest request, CancellationToken cancellationToken = default)
