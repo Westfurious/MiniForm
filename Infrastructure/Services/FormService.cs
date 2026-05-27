@@ -48,6 +48,19 @@ public class FormService : IFormService
         {
             throw new InvalidOperationException($"Missing answers for required questions: {string.Join(',', missing)}");
         }
+        
+        foreach (var answer in request.Answers)
+        {
+            var question = form.Questions.FirstOrDefault(q => q.Id == answer.QuestionId);
+            if (question is null) continue;
+
+            if (question.Type != QuestionType.Text && answer.SelectedOptionId.HasValue)
+            {
+                var validOption = question.Options.Any(o => o.Id == answer.SelectedOptionId.Value);
+                if (!validOption)
+                    throw new InvalidOperationException($"Option {answer.SelectedOptionId} does not belong to question {answer.QuestionId}.");
+            }
+        }
 
         // Build submission
         var submission = new Submission
@@ -59,7 +72,8 @@ public class FormService : IFormService
             {
                 Id = Guid.NewGuid(),
                 QuestionId = a.QuestionId,
-                AnswerText = string.IsNullOrWhiteSpace(a.AnswerText) ? null : a.AnswerText
+                AnswerText = string.IsNullOrWhiteSpace(a.AnswerText) ? null : a.AnswerText,
+                SelectedOptionId = a.SelectedOptionId
             }).ToList()
         };
 
@@ -86,12 +100,20 @@ public class FormService : IFormService
             Description = request.Description,
             Deadline = request.Deadline,
             IsPublic = request.IsPublic,
+            IsAnonymous = request.IsAnonymous,
             CreatedByUserId = createdByUserId,
             Questions = request.Questions.Select(question => new Question
             {
                 Id = Guid.NewGuid(),
                 Title = question.Title,
-                IsRequired = question.IsRequired
+                IsRequired = question.IsRequired,
+                Type = (QuestionType)question.Type,
+                Options = question.Options.Select((text, index) => new QuestionOption 
+                {
+                    Id = Guid.NewGuid(),
+                    Text = text,
+                    Order = index
+                }).ToList()
             }).ToList()
         };
 
@@ -120,12 +142,20 @@ public class FormService : IFormService
             CreatedAt = form.CreatedAt,
             Deadline = form.Deadline,
             IsPublic = form.IsPublic,
+            IsAnonymous = form.IsAnonymous,
             CreatedByUserId = form.CreatedByUserId,
             Questions = form.Questions.Select(question => new QuestionResponse
             {
                 Id = question.Id,
                 Title = question.Title,
-                IsRequired = question.IsRequired
+                IsRequired = question.IsRequired,
+                Type = (QuestionTypeDto)question.Type,
+                Options = question.Options.OrderBy(o => o.Order).Select(o => new QuestionOptionResponse 
+                {
+                    Id = o.Id,
+                    Text = o.Text,
+                    Order = o.Order
+                }).ToList()
             }).ToList()
         };
     }

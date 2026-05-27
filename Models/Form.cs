@@ -12,6 +12,7 @@ namespace MiniForm.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? Deadline { get; set; }
         public bool IsPublic { get; set; } = true;
+        public bool IsAnonymous { get; set; } = false;
         public Guid? CreatedByUserId { get; set; }
 
         public User? CreatedByUser { get; set; }

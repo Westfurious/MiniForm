@@ -19,6 +19,8 @@ public class AppDbContext : DbContext
     public DbSet<Submission> Submissions => Set<Submission>();
 
     public DbSet<Answer> Answers => Set<Answer>();
+    
+    public DbSet<QuestionOption> QuestionOptions => Set<QuestionOption>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +62,19 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(a => a.QuestionId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasOne(a => a.SelectedOption)
+                .WithMany()
+                .HasForeignKey(a => a.SelectedOptionId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+        
+        modelBuilder.Entity<QuestionOption>(entity =>
+        {
+            entity.HasOne(o => o.Question)
+                .WithMany(q => q.Options)
+                .HasForeignKey(o => o.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
