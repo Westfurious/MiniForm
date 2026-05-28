@@ -13,6 +13,8 @@ public class FormResponse
     public DateTime? Deadline { get; set; }
 
     public bool IsPublic { get; set; }
+    
+    public bool IsAnonymous { get; set; }
 
     public Guid? CreatedByUserId { get; set; }
 

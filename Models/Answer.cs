@@ -32,5 +32,9 @@ namespace MiniForm.Models
         public Question Question { get; set; } = null!;
 
         public string? AnswerText { get; set; }
+        
+        public Guid? SelectedOptionId { get; set; }
+        
+        public QuestionOption? SelectedOption { get; set; }
     }
 }

@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
+using MiniForm.Application.Interfaces;
 using MiniForm.Data;
+using MiniForm.Infrastructure.Repositories;
+using MiniForm.Infrastructure.Services;
 using MiniForm.Options;
 using MiniForm.Services;
 using MiniForm.Services.Abstractions;
@@ -23,6 +26,8 @@ builder.Services.AddScoped<MiniForm.Application.Interfaces.IUserRepository, Mini
 builder.Services.AddScoped<MiniForm.Application.Interfaces.IFormRepository, MiniForm.Infrastructure.Repositories.EfFormRepository>();
 builder.Services.AddScoped<MiniForm.Application.Interfaces.ISubmissionRepository, MiniForm.Infrastructure.Repositories.EfSubmissionRepository>();
 builder.Services.AddScoped<MiniForm.Application.Interfaces.IUnitOfWork, MiniForm.Infrastructure.UnitOfWork.EfUnitOfWork>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IAnalyticsRepository, EfAnalyticsRepository>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 

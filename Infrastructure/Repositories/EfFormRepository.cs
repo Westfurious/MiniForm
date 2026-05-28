@@ -31,6 +31,7 @@ public class EfFormRepository : IFormRepository
     {
         return await _context.Forms
             .Include(form => form.Questions)
+            .ThenInclude(q => q.Options)
             .SingleOrDefaultAsync(form => form.Id == id, cancellationToken);
     }
 

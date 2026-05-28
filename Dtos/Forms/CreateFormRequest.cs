@@ -9,6 +9,8 @@ public class CreateFormRequest
     public DateTime? Deadline { get; set; }
 
     public bool IsPublic { get; set; } = true;
+    
+    public bool IsAnonymous { get; set; } = false;
 
     public List<CreateQuestionRequest> Questions { get; set; } = new();
 }

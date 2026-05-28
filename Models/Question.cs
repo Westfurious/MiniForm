@@ -13,4 +13,8 @@ public class Question
     public Guid FormId { get; set; }
 
     public Form Form { get; set; } = null!;
+    
+    public List<QuestionOption> Options { get; set; } = new();
+    
+    public QuestionType Type { get; set; } = QuestionType.Text;
 }
