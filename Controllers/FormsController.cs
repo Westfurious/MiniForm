@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MiniForm.Data;
-using MiniForm.Models;
-using MiniForm.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MiniForm.Dtos.Forms;
+using System.Security.Claims;
 
 namespace MiniForm.Controllers;
 
@@ -10,26 +9,68 @@ namespace MiniForm.Controllers;
 [Route("api/[controller]")]
 public class FormsController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly MiniForm.Application.Interfaces.IFormService _formService;
 
-    public FormsController(AppDbContext context)
+    public FormsController(MiniForm.Application.Interfaces.IFormService formService)
     {
-        _context = context;
+        _formService = formService;
     }
 
+    [Authorize]
     [HttpGet]
-    public async Task<ActionResult<List<Form>>> GetForms()
+    public async Task<ActionResult<List<FormResponse>>> GetForms([FromQuery] int page = 1, CancellationToken cancellationToken = default)
     {
-        return await _context.Forms.ToListAsync();
+        const int pageSize = 10;
+
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized(new { message = "Invalid user token." });
+        }
+
+        if (page < 1) page = 1;
+
+        var forms = await _formService.GetFormsForUserAsync(userId, page, pageSize, cancellationToken);
+        return Ok(forms);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<Form>> CreateForm(Form form)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<FormResponse>> GetFormById(Guid id, CancellationToken cancellationToken)
     {
-        _context.Forms.Add(form);
-
-        await _context.SaveChangesAsync();
+        var form = await _formService.GetFormByIdAsync(id, cancellationToken);
+        if (form is null)
+        {
+            return NotFound(new { message = "Form not found." });
+        }
 
         return Ok(form);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<ActionResult<FormResponse>> CreateForm([FromBody] CreateFormRequest request, CancellationToken cancellationToken)
+    {
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized(new { message = "Invalid user token." });
+        }
+
+        var created = await _formService.CreateFormAsync(request, userId, cancellationToken);
+        return Ok(created);
+    }
+
+    [HttpPost("{id:guid}/responses")]
+    public async Task<ActionResult> SubmitForm(Guid id, [FromBody] MiniForm.Dtos.Forms.SubmitFormRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _formService.SubmitFormAsync(id, request, cancellationToken);
+            return Ok(new { message = "Submission saved." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }
