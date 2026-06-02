@@ -84,7 +84,7 @@ async function loadDashboard() {
 }
 window.loadDashboard = loadDashboard;
 // Новая форма
-let builderState = []; // Вопросы новой формы
+let builderState = [];
 
 function initCreateForm() {
     showView('view-create-form');
@@ -293,13 +293,11 @@ async function submitFormAnswers(e) {
 window.viewAnalytics = async function(formId) {
     try {
         const data = await ApiClient.getAnalytics(formId);
-        
         showView('view-analytics');
-        console.log(data)
-        const totalResponses = data.totalResponses || 0;
-        document.getElementById('analytics-total').textContent = totalResponses;
-        // ДОПИЛИТЬ
-        // оно криво читает json с бэка
+        
+        const totalSubmissions = data.totalSubmissions || 0;
+        document.getElementById('analytics-total').textContent = totalSubmissions;
+
         const container = document.getElementById('analytics-content');
         container.innerHTML = '';
 
@@ -309,53 +307,74 @@ window.viewAnalytics = async function(formId) {
         }
 
         data.questions.forEach(q => {
+            const emp = 'Пусто';
             const block = document.createElement('div');
             block.className = 'analytics-q-block';
-            
+
             const title = document.createElement('div');
             title.className = 'analytics-q-title';
-            title.textContent = q.title || 'Без названия';
+            title.textContent = q.title || emp;
             block.appendChild(title);
+
+            let qTotal = 0;
+            if (typeof q.totalAnswers === 'number') {
+                qTotal = q.totalAnswers;
+            } else if (Array.isArray(q.options) && q.options.length > 0) {
+                qTotal = q.options.reduce((s, o) => s + (o.count || 0), 0);
+            } else if (Array.isArray(q.textAnswers)) {
+                qTotal = q.textAnswers.length;
+            }
 
             if (q.type === 0) {
                 const ul = document.createElement('ul');
                 ul.className = 'text-answers';
-                
-                const answers = q.textAnswers || [];
+
+                const answers = Array.isArray(q.textAnswers) ? q.textAnswers : [];
                 if (answers.length === 0) {
-                    ul.innerHTML = '<li>Нет текстовых ответов</li>';
+                    ul.innerHTML = '<li>Нет ответов =(</li>';
                 } else {
-                    answers.forEach(text => {
+                    answers.forEach(a => {
                         const li = document.createElement('li');
-                        li.textContent = text || '— (пусто) —';
+                        
+                        if (a && typeof a === 'object' && 'answerText' in a) {
+                            li.textContent = a.answerText || emp;
+                        } else if (typeof a === 'string') {
+                            li.textContent = a || emp;
+                        } else {
+                            li.textContent = emp;
+                        }
                         ul.appendChild(li);
                     });
                 }
                 block.appendChild(ul);
-            } 
-            else {
-                const options = q.options || [];
-                
-                options.forEach(opt => {
-                    const count = opt.count || 0;
+            } else {
+                const options = Array.isArray(q.options) ? q.options : [];
 
-                    const percent = totalResponses > 0 ? Math.round((count / totalResponses) * 100) : 0;
+                if (options.length === 0) {
+                    const p = document.createElement('p');
+                    p.textContent = 'Нет вариантов ответа';
+                    block.appendChild(p);
+                } else {
+                    options.forEach(opt => {
+                        const count = Number(opt.count || 0);
+                        const baseTotal = qTotal > 0 ? qTotal : totalSubmissions;
+                        const percent = baseTotal > 0 ? Math.round((count / baseTotal) * 100) : 0;
 
-                    const barWrapper = document.createElement('div');
-                    barWrapper.className = 'bar-wrapper';
-                    barWrapper.innerHTML = `
-                        <div class="bar-stats">
-                            <span>${opt.text}</span>
-                            <span>${count} шт. (${percent}%)</span>
-                        </div>
-                        <div class="bar-container">
-                            <div class="bar-fill" style="width: ${percent}%;"></div>
-                        </div>
-                    `;
-                    block.appendChild(barWrapper);
-                });
+                        const barWrapper = document.createElement('div');
+                        barWrapper.className = 'bar-wrapper';
+                        barWrapper.innerHTML = `
+                            <div class="bar-stats">
+                                <span>${(opt.text != null ? opt.text : '—')}</span>
+                                <span>${count} ответов (${percent}%)</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: ${percent}%;"></div>
+                            </div>
+                        `;
+                        block.appendChild(barWrapper);
+                    });
+                }
             }
-
             container.appendChild(block);
         });
 
