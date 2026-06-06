@@ -16,9 +16,14 @@ function showView(viewId) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (ApiClient.getToken()) loadDashboard();
-    else showView('view-auth');
     setupEventListeners();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedFormId = urlParams.get('formId');
+
+    if (sharedFormId) window.openForm(sharedFormId);
+    else if (ApiClient.getToken()) loadDashboard();
+    else showView('view-auth');
 });
 
 function setupEventListeners() {
@@ -56,7 +61,7 @@ async function handleAuth(isLogin) {
         ApiClient.setToken(response.accessToken);
         loadDashboard();
     } catch (err) {
-        errorEl.textContent = 'Ошибка авторизации. Проверьте данные.';
+        errorEl.textContent = 'Ошибка авторизации.';
     }
 }
 
@@ -73,8 +78,11 @@ async function loadDashboard() {
             const li = document.createElement('li');
             li.innerHTML = `
                 <strong>${form.title || 'Без названия'}</strong> 
-                <button onclick="window.openForm('${form.id}')">Пройти</button>
-                <button onclick="window.viewAnalytics('${form.id}')">Аналитика</button>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="window.openForm('${form.id}')">Пройти</button>
+                    <button onclick="window.viewAnalytics('${form.id}')">Аналитика</button>
+                    <button onclick="window.copyShareLink('${form.id}')">Поделиться</button>
+                </div>
             `;
             listEl.appendChild(li);
         });
@@ -90,7 +98,6 @@ function initCreateForm() {
     showView('view-create-form');
     document.getElementById('create-title').value = '';
     document.getElementById('create-desc').value = '';
-    document.getElementById('create-public').checked = true;
     document.getElementById('create-anonymous').checked = false;
     builderState = [];
     renderBuilder();
@@ -123,7 +130,7 @@ function renderBuilder() {
         div.style.padding = '10px';
         div.style.marginBottom = '10px';
 
-        const typeName = q.type === 0 ? 'Текст' : q.type === 1 ? 'Один вариант (Radio)' : 'Несколько вариантов (Check)';
+        const typeName = q.type === 0 ? 'Текст' : q.type === 1 ? 'Один вариант' : 'Несколько вариантов';
 
         let html = `
             <div><b>Вопрос ${qIndex + 1} [${typeName}]</b> 
@@ -152,9 +159,19 @@ function renderBuilder() {
 window.updateQTitle = (qIdx, val) => builderState[qIdx].title = val;
 window.updateQReq = (qIdx, val) => builderState[qIdx].isRequired = val;
 window.updateQOption = (qIdx, optIdx, val) => builderState[qIdx].options[optIdx] = val;
-window.addQOption = (qIdx) => { builderState[qIdx].options.push('Новый вариант'); renderBuilder(); };
+window.addQOption = (qIdx) => { builderState[qIdx].options.push(''); renderBuilder(); };
 window.removeQOption = (qIdx, optIdx) => { builderState[qIdx].options.splice(optIdx, 1); renderBuilder(); };
 window.removeQuestion = (qIdx) => { builderState.splice(qIdx, 1); renderBuilder(); };
+window.copyShareLink = function(formId) {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?formId=${formId}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('Ссылка скопирована в буфер обмена:\n' + shareUrl);
+    }).catch(err => {
+        alert('Не удалось скопировать ссылку.');
+        console.error(err);
+    });
+}
 
 async function saveNewForm() {
     const title = document.getElementById('create-title').value;
@@ -163,8 +180,7 @@ async function saveNewForm() {
     const requestPayload = {
         title: title,
         description: document.getElementById('create-desc').value,
-        isPublic: document.getElementById('create-public').checked,
-        isAnonymous: document.getElementById('create-anonymous').checked,
+        isAnonymous: document.getElementById('create-anonymous').checked, // Отправляем только это поле
         questions: builderState.map(q => {
             const resultObj = {
                 title: q.title,
@@ -188,7 +204,6 @@ async function saveNewForm() {
         console.error(err);
     }
 }
-
 // Прохождение формы
 
 let currentFillingForm = null;
@@ -274,17 +289,24 @@ async function submitFormAnswers(e) {
 
         if (q.isRequired && !isAnswered) {
             hasValidationError = true;
-            alert(`Ошибка: Вопрос "${q.title}" обязателен для заполнения!`);
+            alert(`Вопрос "${q.title}" обязателен для заполнения`);
         }
     });
 
     if (hasValidationError) return;
 
     try {
-        console.log("sending payload on backend:", JSON.stringify(request, null, 2));
+        console.log("sending payload on backend ", JSON.stringify(request, null, 2));
         await ApiClient.submitFormResponses(currentFillingForm.id, request);
-        alert('Ответы успешно отправлены!');
-        loadDashboard();
+        alert('Ответы отправлены');
+        
+        if (ApiClient.getToken()) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            loadDashboard();
+        } else {
+            document.getElementById('view-fill-form').innerHTML = '<h2>Спасибо! Ваши ответы приняты.</h2>';
+        }
+
     } catch (err) {
         alert('Ошибка 400. Данные отклонены бэкендом');
         console.error('API ERROR:', err);

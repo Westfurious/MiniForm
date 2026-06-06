@@ -25,13 +25,11 @@ body{
   padding:20px;
 }
 
-/* Layout containers */
 #view-auth,#view-dashboard,#view-create-form,#view-fill-form,#view-analytics{
   max-width:800px;
   margin:40px auto;
 }
 
-/* Headings */
 h2{
   font-size:32px;
   font-weight:900;
@@ -56,17 +54,17 @@ h3{
   border-radius:calc(var(--radius) - 2px);
 }
 
-/* Navbar */
-#navbar{
-  max-width:800px;
-  margin:0 auto 40px;
-  border-bottom:var(--border-width) solid var(--muted);
-  padding-bottom:15px;
-  display:flex;
-  gap:15px;
+
+#navbar {
+  max-width: 800px;
+  margin: 0 auto 40px;
+  border-bottom: var(--border-width) solid var(--muted);
+  padding-bottom: 15px;
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
 }
 
-/* Buttons */
 button{
   background:transparent;
   color:var(--text);
@@ -92,7 +90,6 @@ button[onclick*="remove"]{
   border-color:var(--edge);
 }
 
-/* Forms & controls */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -120,13 +117,11 @@ select:focus{
   border-color:var(--accent);
 }
 
-/* Textareas */
 textarea{
   resize:vertical;
   min-height:120px;
 }
 
-/* Labels */
 label{
   display:flex;
   align-items:center;
@@ -136,7 +131,6 @@ label{
   color:var(--text);
 }
 
-/* Checkboxes / radios - simple square */
 input[type="checkbox"],
 input[type="radio"]{
   appearance:none;
@@ -163,7 +157,6 @@ input[type="radio"]:checked::after{
   border-radius:2px;
 }
 
-/* Lists and panels */
 #forms-list{list-style:none;}
 
 #forms-list li{
@@ -182,7 +175,6 @@ input[type="radio"]:checked::after{
 
 #forms-list li button{padding:8px 16px;font-size:12px;margin-left:10px;}
 
-/* Question builder / fill */
 #questions-builder>div,
 #fill-questions>div{
   border:var(--border-width) solid var(--border-color) !important;
@@ -204,7 +196,6 @@ input[type="radio"]:checked::after{
   color:var(--text);
 }
 
-/* Nested list style */
 #questions-builder ul{
   list-style:none;
   border-left:4px solid var(--border-color);
@@ -212,7 +203,6 @@ input[type="radio"]:checked::after{
   margin:16px 0;
 }
 
-/* Minor element sizing */
 #questions-builder li{
   display:flex;
   gap:10px;
@@ -222,7 +212,6 @@ input[type="radio"]:checked::after{
 #questions-builder li input{margin-bottom:0;}
 #questions-builder li button{padding:0 12px;font-size:18px;}
 
-/* Inline error */
 #fill-questions span[style*="color:red"]{
   color:var(--text) !important;
   font-size:20px;
@@ -230,7 +219,6 @@ input[type="radio"]:checked::after{
   margin-left:5px;
 }
 
-/* Auth error */
 #auth-error{
   color:var(--accent);
   font-weight:700;
@@ -241,7 +229,6 @@ input[type="radio"]:checked::after{
 }
 #auth-error:empty{display:none;}
 
-/* Analytics / stats unified style */
 .stat-box,
 .analytics-q-block,
 .bar-container,
@@ -253,7 +240,6 @@ input[type="radio"]:checked::after{
   color:var(--text);
 }
 
-/* Stat box specifics */
 .stat-box {
   padding:18px 30px;
   display:inline-block;
@@ -265,7 +251,6 @@ input[type="radio"]:checked::after{
 .stat-label{ display:block; font-size:16px; text-transform:uppercase; font-weight:700; margin-bottom:8px; }
 .stat-number{ display:block; font-size:48px; font-weight:900; line-height:1; }
 
-/* Analytics titles and bars */
 .analytics-q-block{ padding:20px; margin-bottom:20px; }
 .analytics-q-title{
   font-size:18px;
@@ -294,7 +279,6 @@ input[type="radio"]:checked::after{
   display:block;
 }
 
-/* Text answers list */
 .text-answers{
   list-style:none;
   max-height:300px;
