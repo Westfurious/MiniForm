@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniForm App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav id="navbar" style="display: none;">
+        <button id="nav-dashboard">Мои формы</button>
+        <button id="nav-create">Создать форму</button>
+        <button id="nav-logout">Выйти</button>
+    </nav>
+
+    <hr>
+
+    <div id="view-auth">
+        <h2>Вход / Регистрация</h2>
+        <form id="auth-form">
+            <input type="email" id="auth-email" placeholder="Email" required><br><br>
+            <input type="password" id="auth-password" placeholder="Пароль" required minlength="6"><br><br>
+            <button type="submit" id="btn-login">Войти</button>
+            <button type="button" id="btn-register">Зарегистрироваться</button>
+        </form>
+        <p id="auth-error"></p>
+    </div>
+
+
+    <div id="view-dashboard" style="display: none;">
+        <h2>Список форм</h2>
+        <ul id="forms-list"></ul>
+    </div>
+
+    <div id="view-create-form" style="display: none;">
+        <h2>Создать новую форму</h2>
+        <input type="text" id="create-title" placeholder="Название формы" required><br><br>
+        <textarea id="create-desc" placeholder="Описание"></textarea><br><br>
+        <label><input type="checkbox" id="create-anonymous"> Анонимная</label><br><br>
+
+        <h3>Вопросы</h3>
+        <div id="questions-builder"></div>
+        <br>
+
+        <select id="question-type-select">
+            <option value="0">Текстовый вопрос</option>
+            <option value="1">Выбор одного варианта</option>
+            <option value="2">Выбор нескольких вариантов</option>
+        </select>
+        <button id="btn-add-question">Добавить вопрос</button>
+        <br><br><hr><br>
+        
+        <button id="btn-save-form">Сохранить форму</button>
+    </div>
+
+
+    <div id="view-fill-form" style="display: none;">
+        <h2 id="fill-title"></h2>
+        <p id="fill-desc"></p>
+        <form id="fill-form-element">
+            <div id="fill-questions"></div>
+            <br>
+            <button type="submit">Отправить ответы</button>
+        </form>
+    </div>
+
+    <div id="view-analytics" style="display: none;">
+        <button onclick="window.loadDashboard()" style="margin-bottom: 20px;">&larr; Назад к формам</button>
+        
+        <h2>Аналитика формы</h2>
+        
+        <div class="stat-box">
+            <span class="stat-label">Всего ответов</span>
+            <span id="analytics-total" class="stat-number">0</span>
+        </div>
+
+        <div id="analytics-content"></div>
+    </div>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

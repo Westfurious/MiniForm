@@ -13,6 +13,17 @@ using MiniForm.Services.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(
+    options => 
+    {
+        options.AddDefaultPolicy(
+            policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+    }
+);
+
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -68,6 +79,7 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -87,5 +99,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.UseCors();
+app.UseDefaultFiles();// поиск index.html в wwwroot
+app.UseStaticFiles();// отдаёт файлы из wwwroot
 
 app.Run();
