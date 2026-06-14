@@ -14,6 +14,7 @@ namespace MiniForm.Models
         public bool IsPublic { get; set; } = true;
         public bool IsAnonymous { get; set; } = false;
         public Guid? CreatedByUserId { get; set; }
+        public string PublicSlug { get; set; }
 
         public User? CreatedByUser { get; set; }
 
